@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Custom App Favicon (Inline SVG — no extra file needed) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 40 40' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='12' r='4' fill='%2300E5A3'/%3E%3Cpath d='M20 19C12 14 4 17 4 17V33C12 31 18 29 20 34C22 29 28 31 36 33V17C36 17 28 14 20 19Z' fill='%2300E5A3' opacity='0.85'/%3E%3Cpath d='M8 9L9.5 5L11 9L15 10.5L11 12L9.5 16L8 12L4 10.5L8 9Z' fill='%2300E5A3'/%3E%3Cpath d='M31 6L32 3L33 6L36 7L33 8L32 11L31 8L28 7L31 6Z' fill='%2300E5A3' opacity='0.7'/%3E%3C/svg%3E">
+  <title>AI Study Assistant</title>
+  <meta name="description" content="AI-powered study assistant with document analysis and intelligent Q&A." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'core/style.css' %}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" />
+</head>
+<body>
+
+<!-- ─── Ambient Background ─────────────────────────────────────────────────── -->
+<div id="hero-orb"></div>
+
+<!-- ─── Auth Overlay ──────────────────────────────────────────────────────── -->
+<div id="auth-overlay">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="12" r="4" fill="#00E5A3"/>
+          <path d="M20 19C12 14 4 17 4 17V33C12 31 18 29 20 34C22 29 28 31 36 33V17C36 17 28 14 20 19Z" fill="#00E5A3" opacity="0.85"/>
+          <path d="M8 9L9.5 5L11 9L15 10.5L11 12L9.5 16L8 12L4 10.5L8 9Z" fill="#00E5A3"/>
+          <path d="M31 6L32 3L33 6L36 7L33 8L32 11L31 8L28 7L31 6Z" fill="#00E5A3" opacity="0.7"/>
+        </svg>
+      </div>
+      <span>AI Study Assistant</span>
+    </div>
+    <h1 class="auth-title">Welcome back</h1>
+    <p class="auth-subtitle">Sign in to continue your learning journey</p>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-tab="login">Sign In</button>
+      <button class="auth-tab" data-tab="register">Create Account</button>
+    </div>
+
+    <div id="auth-error" class="auth-error"></div>
+
+    <!-- Login Form -->
+    <div id="login-form">
+      <div class="form-group">
+        <label class="form-label" for="login-email">Email address</label>
+        <input id="login-email" class="form-input" type="email" placeholder="you@example.com" autocomplete="email" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="login-password">Password</label>
+        <input id="login-password" class="form-input" type="password" placeholder="••••••••" autocomplete="current-password" />
+      </div>
+      <button id="btn-login" class="btn-primary">Sign In →</button>
+      <div class="auth-divider">or</div>
+      <button type="button" class="btn-google" id="google-signin-btn">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.36-8.16 2.36-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        Continue with Google
+      </button>
+    </div>
+
+    <!-- Register Form -->
+    <div id="register-form" style="display:none">
+      <div class="form-group">
+        <label class="form-label" for="reg-name">Full name</label>
+        <input id="reg-name" class="form-input" type="text" placeholder="Jane Doe" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="reg-email">Email address</label>
+        <input id="reg-email" class="form-input" type="email" placeholder="you@example.com" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="reg-password">Password</label>
+        <input id="reg-password" class="form-input" type="password" placeholder="Min 8 characters" />
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="reg-password2">Confirm password</label>
+        <input id="reg-password2" class="form-input" type="password" placeholder="Repeat password" />
+      </div>
+      <button id="btn-register" class="btn-primary">Create Account →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── App Shell ──────────────────────────────────────────────────────────── -->
+<div id="app">
+
+  <!-- ── Left Sidebar ──────────────────────────────────────────────────────── -->
+  <aside id="sidebar">
+
+    <!-- Sidebar Header -->
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="20" cy="12" r="4" fill="#00E5A3"/>
+            <path d="M20 19C12 14 4 17 4 17V33C12 31 18 29 20 34C22 29 28 31 36 33V17C36 17 28 14 20 19Z" fill="#00E5A3" opacity="0.85"/>
+            <path d="M8 9L9.5 5L11 9L15 10.5L11 12L9.5 16L8 12L4 10.5L8 9Z" fill="#00E5A3"/>
+            <path d="M31 6L32 3L33 6L36 7L33 8L32 11L31 8L28 7L31 6Z" fill="#00E5A3" opacity="0.7"/>
+          </svg>
+        </div>
+        <span class="sidebar-logo-text">AI Study</span>
+      </div>
+    </div>
+
+    <!-- New Chat Button -->
+    <button id="btn-new-chat" class="btn-new-chat">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      New Chat
+    </button>
+
+    <!-- Chat History -->
+    <div class="sidebar-section-label">Recent</div>
+    <div id="session-list" class="session-list"></div>
+
+    <!-- Sidebar Footer -->
+    <div class="sidebar-footer">
+      <div class="sidebar-user" id="sidebar-user">
+        <div class="sidebar-user-avatar" id="sidebar-avatar">U</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" id="sidebar-name">User</div>
+          <div class="sidebar-user-email" id="sidebar-email">—</div>
+        </div>
+        <button class="sidebar-signout-btn" id="btn-logout" title="Sign Out">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Main Chat Canvas ───────────────────────────────────────────────────── -->
+  <main id="chat-canvas">
+
+    <!-- Canvas Top Header (always visible, contains persistent toggle) -->
+    <header class="canvas-header">
+      <button id="btn-toggle-sidebar" class="sidebar-toggle-btn" title="Toggle Sidebar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <span class="canvas-header-title">AI Study Assistant</span>
+    </header>
+
+    <!-- Active Context Bar -->
+    <div id="active-context-bar" class="active-context-bar" style="display:none">
+      <span class="active-context-icon">📄</span>
+      <span class="active-context-label">Active Context:</span>
+      <span id="active-context-name" class="active-context-name">document.pdf</span>
+      <button id="active-context-remove" class="active-context-remove" title="Detach Document">✕</button>
+    </div>
+
+    <!-- Empty State -->
+    <div id="chat-empty-state" class="chat-empty-state">
+      <div class="empty-logo">
+        <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" width="48" height="48">
+          <circle cx="20" cy="12" r="4" fill="#00E5A3"/>
+          <path d="M20 19C12 14 4 17 4 17V33C12 31 18 29 20 34C22 29 28 31 36 33V17C36 17 28 14 20 19Z" fill="#00E5A3" opacity="0.85"/>
+          <path d="M8 9L9.5 5L11 9L15 10.5L11 12L9.5 16L8 12L4 10.5L8 9Z" fill="#00E5A3"/>
+          <path d="M31 6L32 3L33 6L36 7L33 8L32 11L31 8L28 7L31 6Z" fill="#00E5A3" opacity="0.7"/>
+        </svg>
+      </div>
+      <h1 class="empty-title">Ready when you are.</h1>
+      <p class="empty-subtitle">Ask anything or upload a PDF to get started.</p>
+      <div class="suggestion-pills">
+        <button class="suggestion-pill" data-prompt="Summarize my uploaded document and list the key points.">📄 Summarize a document</button>
+        <button class="suggestion-pill" data-prompt="Explain the main concepts from the uploaded file in simple terms.">💡 Explain key concepts</button>
+        <button class="suggestion-pill" data-prompt="Generate 5 practice quiz questions based on the document.">🎯 Create quiz questions</button>
+      </div>
+    </div>
+
+    <!-- Chat Messages -->
+    <div id="chat-messages" class="chat-messages" style="display:none"></div>
+
+  </main>
+</div><!-- /app -->
+
+<!-- ─── Floating Prompt Bar ────────────────────────────────────────────────── -->
+<div id="prompt-bar">
+  <!-- Document Pill (shown when PDF is attached) -->
+  <div id="doc-pill" class="doc-pill" style="display:none">
+    <span class="doc-pill-icon">📄</span>
+    <span id="doc-pill-name" class="doc-pill-name">document.pdf</span>
+    <button id="doc-pill-remove" class="doc-pill-remove" title="Remove document">✕</button>
+  </div>
+
+  <!-- Input Row -->
+  <div class="prompt-row">
+    <!-- PDF Upload -->
+    <label class="prompt-attach-btn" for="pdf-file-input" title="Attach PDF">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </label>
+    <input type="file" id="pdf-file-input" accept=".pdf,.docx,.txt" style="display:none" />
+
+    <!-- Text Input -->
+    <textarea
+      id="prompt-input"
+      class="prompt-textarea"
+      placeholder="Ask anything about your document…"
+      rows="1"
+      aria-label="Chat input"
+    ></textarea>
+
+    <!-- Send Button -->
+    <button id="prompt-submit" class="prompt-submit" title="Send message">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- ─── Toast Container ────────────────────────────────────────────────────── -->
+<div id="toast-container" aria-live="polite"></div>
+
+<!-- ─── Scripts ───────────────────────────────────────────────────────────── -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script>
+  if (window.marked) {
+    marked.setOptions({ breaks: true, gfm: true });
+  }
+</script>
+<!-- ─── Config injected by Django (safe: only public keys) ──────────────── -->
+<script>
+  window.GOOGLE_CLIENT_ID = '{{ GOOGLE_CLIENT_ID|escapejs }}';
+</script>
+<!-- Load Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<script src="{% static 'core/app.js' %}" defer></script>
+
+</body>
+</html>

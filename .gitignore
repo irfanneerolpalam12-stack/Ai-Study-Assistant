@@ -1,0 +1,63 @@
+# ─── Secrets & Environment ───────────────────────────────────────────────────
+.env
+*.env
+!.env.example          # Always track the example, never the real one
+
+# ─── Python ──────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# ─── Virtual Environments ────────────────────────────────────────────────────
+venv/
+env/
+.venv/
+ENV/
+
+# ─── Django ──────────────────────────────────────────────────────────────────
+db.sqlite3
+*.sqlite3
+media/
+staticfiles/
+static_collected/
+
+# ─── Uploaded Documents (user data — never commit) ───────────────────────────
+*.pdf
+*.docx
+*.doc
+*.txt
+*.pptx
+
+# ─── ChromaDB (local vector store — regenerated from documents) ──────────────
+chroma_db/
+
+# ─── IDE / Editor ────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ─── OS Artifacts ────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── Docker ──────────────────────────────────────────────────────────────────
+# (docker-compose.yml IS committed — it contains no secrets)
+# Volumes managed by Docker are outside the repo
+
+# ─── Logs ────────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ─── Test / Coverage ─────────────────────────────────────────────────────────
+.coverage
+htmlcov/
+.pytest_cache/

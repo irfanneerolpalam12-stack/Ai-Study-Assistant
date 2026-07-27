@@ -1,0 +1,64 @@
+version: "3.8"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# AI Study Assistant — Docker Compose
+#
+# Services:
+#   web    — Django backend (port 8000)
+#   ollama — Local LLM engine (port 11434, Gemma 2 model)
+#
+# Usage:
+#   docker compose up --build          # First run (builds image)
+#   docker compose up -d               # Subsequent runs (detached)
+#
+# After first run, pull the model into the ollama container:
+#   docker exec -it ai_study_ollama ollama pull gemma2
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── Django Web Application ──────────────────────────────────────────────────
+  web:
+    build: .
+    container_name: ai_study_web
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env                          # Load all secrets from local .env
+    environment:
+      # Override Ollama URL to use Docker's internal network hostname
+      OLLAMA_HOST: http://ollama:11434
+      OLLAMA_BASE_URL: http://ollama:11434
+      # Ensure Django knows to accept requests from the host machine
+      ALLOWED_HOSTS: "localhost,127.0.0.1,0.0.0.0"
+    volumes:
+      - .:/app                        # Live-reload: mount source code
+      - media_data:/app/media         # Persist uploaded files across restarts
+      - chroma_data:/app/chroma_db    # Persist ChromaDB embeddings
+    depends_on:
+      - ollama
+    restart: unless-stopped
+
+  # ── Ollama LLM Engine ───────────────────────────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ai_study_ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama     # Persist downloaded models (avoids re-downloading)
+    restart: unless-stopped
+    # GPU support (uncomment if you have an NVIDIA GPU + nvidia-container-toolkit):
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+# ─── Named Volumes ─────────────────────────────────────────────────────────────
+volumes:
+  ollama_data:      # Stores downloaded Ollama models (gemma2, nomic-embed-text, etc.)
+  media_data:       # Stores user-uploaded PDFs and documents
+  chroma_data:      # Stores ChromaDB vector embeddings
